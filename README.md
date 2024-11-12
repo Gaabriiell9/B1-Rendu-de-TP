@@ -346,8 +346,6 @@ Mon IP : 192.168.1.2  				 IP du serveur : 203.0.113.5
 
 PING 203.0.113.5 (203.0.113.5): 56 data bytes
 
-Request timeout for icmp_seq 0
-
-Request timeout for icmp_seq 1
-
+Request timeout for icmp_seq 0  
+Request timeout for icmp_seq 1  
 Request timeout for icmp_seq 2
