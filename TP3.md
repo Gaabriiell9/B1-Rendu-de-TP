@@ -157,3 +157,83 @@ imbob@tpos:~$
     mbob@tpos:~$ pwd
 
 /home/goodguy
+
+
+
+# II. Processes
+
+## 🌞 Affichez les processus bash
+
+    ps aux | grep "bash"
+
+fariasg+     908  0.0  0.3   7872  3952 pts/0    Ss+  14:09   0:00 bash  
+fariasg+    1157  0.0  0.4   9236  4636 pts/1    Ss+  14:10   0:00 bash  
+fariasg+    1428  0.0  0.4   8004  4836 pts/3    Ss   14:49   0:00 bash  
+fariasg+    1875  0.0  0.1   6092  1956 pts/3    S+   15:52   0:00 grep bash  
+
+
+## 🌞 Affichez tous les processus lancés par votre utilisateur
+    ps -u 
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND  
+fariasg+     908  0.0  0.3   7872  3952 pts/0    Ss+  14:09   0:00 bash   
+fariasg+    1157  0.0  0.4   9236  4636 pts/1    Ss+  14:10   0:00 bash   
+fariasg+    1428  0.0  0.4   8004  4836 pts/3    Ss   14:49   0:00 bash  
+fariasg+    1882  150  0.4  11272  4112 pts/3    R+   15:54   0:00 ps -u  
+
+
+## 🌞 Affichez le top 5 des processus qui utilisent le plus de RAM
+
+    free -h
+total        used        free      shared  buff/cache   available  
+Mem:           973Mi       537Mi       116Mi        17Mi       417Mi       435Mi  
+Swap:          948Mi       780Ki       948Mi  
+
+## 🌞 Affichez le PID du processus du service SSH
+
+
+    pgrep -x sshd
+512
+
+## 🌞 Affichez le nom du processus avec l'identifiant le plus petit
+
+    ps -e | head -n 2
+PID TTY          TIME CMD  
+1   ?        00:00:00 systemd
+
+
+# 2. Parent, enfant, et meurtre
+
+## 🌞 Déterminer le PID de votre shell actuel
+
+    ps -e | grep "bash"
+
+OU
+
+    echo $$
+
+1428
+
+
+## 🌞 Déterminer le PPID de votre shell actuel
+
+    ps -o ppid= -p $$
+811
+
+## 🌞 Déterminer le nom de ce processus
+
+    $ ps -p $(ps -o ppid= -p $$) -o comm=
+
+
+## 🌞 Lancer un processus sleep 9999 en tâche de fond
+
+    sleep 999  &
+
+    ps -o pid,ppid,comm -p $!
+
+PID    PPID COMMAND  
+1923    1428 sleep
+
+
+
+
+## III. Services
