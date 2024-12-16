@@ -234,6 +234,115 @@ PID    PPID COMMAND
 1923    1428 sleep
 
 
+# III. Services
+
+## 2. Analyser un service existant
+
+## 🌞 S'assurer que le service ssh est démarré
+
+```sudo systemctl status SSH```
 
 
-## III. Services
+## 🌞 Isolez la ligne qui indique le nom du programme lancé
+
+```sudo systemctl start ssh```
+
+
+```systemctl status ssh```
+```bash
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; enabled; preset: disabled)
+     Active: active (running) since Wed 2024-11-20 10:13:20 CET; 1h 2min ago
+ Invocation: a3aba34d2cca4531979c99781dda9375
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 691 (sshd)
+      Tasks: 1 (limit: 2232)
+     Memory: 6.8M (peak: 24M)
+        CPU: 154ms
+     CGroup: /system.slice/ssh.service
+             └─691 "sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups"
+
+Warning: some journal files were not opened due to insufficient permissions.
+
+```
+Quelle commande ? Dans le systemctl status, le nom et le PID du programme lancé sont indiqués, isolez donc cette ligne
+
+
+```sudo systemctl status ssh | grep -E '●|PID'```
+
+
+## 🌞 Déterminer le port sur lequel écoute le service SSH
+```sudo ss -lnpt```
+```bash
+State            Recv-Q           Send-Q                       Local Address:Port                        Peer Address:Port           Process                                              
+LISTEN           0                1024                             127.0.0.1:40635                            0.0.0.0:*               users:(("code-4849ca9bdf",pid=1503,fd=9))           
+LISTEN           0                4096                             127.0.0.1:631                              0.0.0.0:*               users:(("cupsd",pid=674,fd=7))                      
+LISTEN           0                128                                0.0.0.0:22                               0.0.0.0:*               users:(("sshd",pid=691,fd=7))                       
+LISTEN           0                4096                                 [::1]:631                                 [::]:*               users:(("cupsd",pid=674,fd=6))                      
+LISTEN           0                128    
+```
+
+
+## 🌞 Consulter les logs du service SSH
+
+
+```sudo journalctl -u ssh```
+
+```bash
+Nov 15 17:43:16 debian systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Nov 15 17:43:16 debian sshd[591]: Server listening on 0.0.0.0 port 22.
+Nov 15 17:43:16 debian sshd[591]: Server listening on :: port 22.
+Nov 15 17:43:16 debian systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+-- Boot aea5b060157846a89fa1677383641da2 --
+Nov 18 15:35:44 debian systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Nov 18 15:35:44 debian sshd[596]: Server listening on 0.0.0.0 port 22.
+Nov 18 15:35:44 debian sshd[596]: Server listening on :: port 22.
+Nov 18 15:35:44 debian systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+-- Boot 0d65d8ae7d494f95b5f7f45246f0708a --
+Nov 18 15:50:07 debian systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Nov 18 15:50:07 debian sshd[613]: Server listening on 0.0.0.0 port 22.
+Nov 18 15:50:07 debian sshd[613]: Server listening on :: port 22.
+Nov 18 15:50:07 debian systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+Nov 18 15:51:00 debian sshd[613]: Received signal 15; terminating.
+Nov 18 15:51:00 debian systemd[1]: Stopping ssh.service - OpenBSD Secure Shell server...
+Nov 18 15:51:00 debian systemd[1]: ssh.service: Deactivated successfully.
+```
+
+
+# 3. Modification du service
+
+## A. Configuration du service SSH
+
+## 🌞 Identifier le fichier de configuration du serveur SSH
+
+```ls -l /etc/ssh/```
+```bash
+total 572
+-rw-r--r-- 1 root root 541653 Oct 27 14:58 moduli
+-rw-r--r-- 1 root root   1649 Oct 27 14:58 ssh_config
+drwxr-xr-x 2 root root   4096 Nov 20 09:16 ssh_config.d
+-rw-r--r-- 1 root root   3223 Jun 22 21:38 sshd_config
+drwxr-xr-x 2 root root   4096 Jun 22 21:38 sshd_config.d
+-rw------- 1 root root    505 Nov 15 17:41 ssh_host_ecdsa_key
+-rw-r--r-- 1 root root    173 Nov 15 17:41 ssh_host_ecdsa_key.pub
+-rw------- 1 root root    399 Nov 15 17:41 ssh_host_ed25519_key
+-rw-r--r-- 1 root root     93 Nov 15 17:41 ssh_host_ed25519_key.pub
+-rw------- 1 root root   2602 Nov 15 17:41 ssh_host_rsa_key
+-rw-r--r-- 1 root root    565 Nov 15 17:41 ssh_host_rsa_key.pub
+```
+
+## 🌞 Modifier le fichier de conf
+
+```sudo nano /etc/ssh/sshd_config```
+
+
+```cat /etc/ssh/sshd_config | grep 'Port'```
+
+#Port 2222
+#GatewayPorts no
+
+
+# 🌞 Redémarrer le service
+
+sudo systemctl restart ssh
